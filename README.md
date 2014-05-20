@@ -1,1 +1,1 @@
-### A customizeable Javascript ticker using the ```canvas``` tag. 
+### A customizeable Javascript ticker using the ```<canvas>``` tag. 
