@@ -3,161 +3,138 @@
 // (c) 2014 Max Hubenthal
 // Ticker may be freely distributed under the MIT license.
 
-// Thanks to Underscore.js and Jeremey Ashkenas for giving me a 
-// headstart on how to design a library. I know there are many ways
-// to approach it, but going with the global object seems to make sense
-// for now.
-
-// This is merely the minimal amount of boilerplate and it will
-// it be expanded as it is more fully developed. 
-
+// Wrap the library in an IIFE
 (function() {
+  // Declare tkr object for use in global namespace
+  var tkr = {
+    // Current version.
+    VERSION: "1.0"
+  };
 
-// Baseline setup
-// -------------
+  // References to <canvas> element...*** THESE WILL NEED TO BE IMPROVED ***
+  var tkr_canvas = document.getElementById("tkr_canvas");
+  var tkr_ctx = tkr_canvas.getContext('2d');
 
-// Establish the root object, 'window' in the browser.
-var root = this;
+  // Default tkr values
+  var tkr_gridWidth = 350, tkr_gridHeight = 200, tkr_gridUnitSize = 10, tkr_gridColor = "black",
+    tkr_message = "Hello there, world.", tkr_messagerColor = "black", tkr_messageInterval = 200;
 
-// Create a safe reference to the Ticker object for use below.
-var tkr = function(obj) {
-  if (obj instanceof tkr) return obj;
-  if (!(this instanceof tkr)) return new tkr(obj);
-};
-
-// Add 'tkr' as a global object via a string identifier.
-root.tkr = tkr;
-
-// Current version.
-tkr.VERSION = '0.0.1';
-
-// Ticker display loop
-tkr.run = setInterval(function () {
-    draw();
-    drawCube();
-}, 200);
-
-// "Constants"
-var ctx = canvas.getContext('2d');
-
-// Draw a grid on canvas element
-var draw = function () {
-
-    var canvas = document.getElementById('canvas');
-    var bodyWidth = 350;
-    var bodyHeight = 200;
-
-    if (canvas.getContext) {
-        document.getElementById('canvas').width = 350;
-        document.getElementById('canvas').height = 200;
-        document.getElementById('canvas').border = "1px solid black";
-
-        // Clear canvas of remnants
-        ctx.clearRect(0, 0,
-        350, 200);
-        // Draw vertical grid
-        for (var x = 0; x <= bodyWidth; x++) {
-            ctx.beginPath();
-            ctx.moveTo(x, 0);
-            ctx.lineTo(x, bodyHeight);
-            ctx.closePath();
-            ctx.fillStyle = "grey";
-            ctx.stroke();
-            x += 10;
-        }
-
-        // Draw horizontal grid
-        for (var y = 0; y <= bodyHeight; y++) {
-            ctx.beginPath();
-            ctx.moveTo(0, y);
-            ctx.lineTo(bodyWidth, y);
-            ctx.closePath();
-            ctx.fillStyle = "grey";
-            ctx.stroke();
-            y += 10;
-        }
+  // Draw a grid on canvas element
+  function tkr_drawGrid(gridWidth,gridHeight,gridUnitSize,gridColor,canvasContext){
+    // Clear canvas of remnants
+    canvasContext.clearRect(0,0,gridWidth,gridHeight);
+    // Draw vertical grid
+    for (var x = 0; x <= gridWidth; x++){
+      canvasContext.beginPath();
+      canvasContext.moveTo(x, 0);
+      canvasContext.lineTo(x, gridHeight);
+      canvasContext.closePath();
+      canvasContext.fillStyle = gridColor;
+      canvasContext.stroke();
+      x += gridUnitSize;
     }
-};
+    // Draw horizontal grid
+    for (var y = 0; y <= gridHeight; y++){
+      canvasContext.beginPath();
+      canvasContext.moveTo(0, y);
+      canvasContext.lineTo(gridWidth, y);
+      canvasContext.closePath();
+      canvasContext.fillStyle = gridColor;
+      canvasContext.stroke();
+      y += gridUnitSize;
+    }
+  }
 
-// Shape class constructor
-function Shape(newOffset) {
+  // Shape class constructor
+  function tkr_shape(newOffset){
     // Declare array of rectangle coordinates
     this.shapeArray = [];
     // tickerMessage width
     //this.tickerMessageWidth = newTickerMessageWidth;
     // Test array of squares
     // p represents a point
-    // this is a 3x3 grid
+    // this is a 3x3 grid *** FIX THIS TO BE MODULAR ***
     // 0--1--2
     // 3--4--5
     // 6--7--8  --> array positions for coordinates
     this.p = 0;
     this.testShape = [
-        [this.p, this.p],
-        [this.p + 10, this.p],
-        [this.p + 20, this.p],
-        [this.p, this.p + 10],
-        [this.p + 10, this.p + 10],
-        [this.p + 20, this.p + 10],
-        [this.p, this.p + 20],
-        [this.p + 10, this.p + 20],
-        [this.p + 20, this.p + 20]
+      [this.p, this.p],
+      [this.p + 10, this.p],
+      [this.p + 20, this.p],
+      [this.p, this.p + 10],
+      [this.p + 10, this.p + 10],
+      [this.p + 20, this.p + 10],
+      [this.p, this.p + 20],
+      [this.p + 10, this.p + 20],
+      [this.p + 20, this.p + 20]
     ];
     // Overall width of ticker
-    this.reset = 350;
+    this.reset = tkr_gridWidth;
     // Initial offset
     this.offset = newOffset;
-};
-// Declare Shape class properties on prototype
-Shape.prototype = {
+  }
+
+  // Declare Shape class properties on prototype
+  tkr_shape.prototype = {
     // Constructor
-    constructor: Shape,
+    constructor: tkr_shape,
     // Load a shape with generic coordinates from an array of squares to "turn on"
-    loadShape: function (arrayOfSquaresToColor) {
-        // Store shape offset in position "0"
-        this.shapeArray[0] = this.offset;
-        // Add positions to color to the shape
-        for (var i = 0; i < arrayOfSquaresToColor.length; i++) {
-            this.shapeArray[i] = this.testShape[arrayOfSquaresToColor[i]];
-            // Set each x coordinate of shape to max width of ticker
-            this.shapeArray[i][0] += this.offset;
-        }
+    loadShape: function (arrayOfSquaresToColor){
+      // Store shape offset in position "0"
+      this.shapeArray[0] = this.offset;
+      // Add positions to color to the shape
+      for (var i = 0; i < arrayOfSquaresToColor.length; i++){
+        this.shapeArray[i] = this.testShape[arrayOfSquaresToColor[i]];
+        // Set each x coordinate of shape to max width of ticker
+        this.shapeArray[i][0] += this.offset;
+      }
     },
 
     // Draw a shape, given a '2d' <canvas> context
-    drawShape: function (canvasContext) {
-        for (var i = 0; i < this.shapeArray.length; i++) {
-            // Pixel is ready to cycle back to enter right of ticker
-            if (this.shapeArray[i][0] < 0) {
-                // Reset position to ticker display width
-                this.shapeArray[i][0] = this.reset;
-            };
-            var tempX = this.shapeArray[i][0];
-            var tempY = this.shapeArray[i][1];
-            // Draw shape
-            canvasContext.fillStyle = "black";
-            canvasContext.fillRect(tempX, tempY, 10, 10);
-            this.shapeArray[i][0] -= 10; // Decrement x coordinate position
+    drawShape: function (canvasContext){
+      for (var i = 0; i < this.shapeArray.length; i++){
+        // Pixel is ready to cycle back to enter right of ticker
+        if (this.shapeArray[i][0] < 0) {
+          // Reset position to ticker display width
+          this.shapeArray[i][0] = this.reset;
         };
+        var tempX = this.shapeArray[i][0];
+        var tempY = this.shapeArray[i][1];
+        // Draw shape
+        canvasContext.fillStyle = "black";
+        canvasContext.fillRect(tempX, tempY, 10, 10);
+        this.shapeArray[i][0] -= tkr_gridUnitSize; // Decrement x coordinate position
+      };
     }
-};
+  }
 
-// Create sample shapes
-var firstShape = new Shape(350);
-var positionsToColor = [0, 2];
-firstShape.loadShape(positionsToColor);
-var secondShape = new Shape(370);
-positionsToColor = [3, 5];
-secondShape.loadShape(positionsToColor);
-var thirdShape = new Shape(390);
-positionsToColor = [6, 8, 5];
-thirdShape.loadShape(positionsToColor);
+  // SAMPLE CODE TO TEST LIBRARY REVISIONS
+  // Create sample shapes
+  var firstShape = new tkr_shape(350);
+  var positionsToColor = [0, 2];
+  firstShape.loadShape(positionsToColor);
+  var secondShape = new tkr_shape(370);
+  positionsToColor = [3, 5];
+  secondShape.loadShape(positionsToColor);
+  var thirdShape = new tkr_shape(390);
+  positionsToColor = [6, 8, 5];
+  thirdShape.loadShape(positionsToColor);
+  test_messageArray = [firstShape,secondShape,thirdShape];
 
-// Starting position for ticker elements
-// Function to animate cube
-var drawCube = function () {
-    thirdShape.drawShape(ctx);
-    secondShape.drawShape(ctx);
-    firstShape.drawShape(ctx);
-};
-}.call(this));
+  // Draw letters from message to canvas, an array of tkr_shape objects are passed in
+  function tkr_writeMessage(messageArray){
+    for(var i=0; i<messageArray.length; i++){
+        messageArray[i].drawShape(tkr_ctx);
+    }
+  };
+
+  // Ticker display loop
+  tkr.run = setInterval(function () {
+    tkr_drawGrid(tkr_gridWidth,tkr_gridHeight,tkr_gridUnitSize,tkr_gridColor,tkr_ctx);
+    tkr_writeMessage(test_messageArray);
+  }, tkr_messageInterval);
+  
+  // Register the tkr object to the global namespace
+  this.tkr = tkr;
+}());
