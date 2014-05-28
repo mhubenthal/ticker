@@ -1,4 +1,4 @@
-// Ticker.js
+// ticker.js
 // (website here)
 // (c) 2014 Max Hubenthal
 // Ticker may be freely distributed under the MIT license.
@@ -11,42 +11,67 @@
     VERSION: "1.0"
   };
 
-  // References to <canvas> element...*** THESE WILL NEED TO BE IMPROVED ***
+  /////////////////////////////////////////////
+  //  tkr constants
+  /////////////////////////////////////////////
+
+  // References to <canvas> element
+  // Note: for tkr to work, <canvas id="tkr_canvas"></canvas> 
+  //   must be included in the <body> tag of the document
   var tkr_canvas = document.getElementById("tkr_canvas");
   var tkr_ctx = tkr_canvas.getContext('2d');
 
   // Default tkr values
-  var tkr_gridWidth = 350, tkr_gridHeight = 200, tkr_gridUnitSize = 10, tkr_gridColor = "black",
+  var tkr_gridWidth = tkr_canvas.width = 350, tkr_gridHeight = tkr_canvas.height = 200, tkr_gridUnitSize = 10, tkr_gridColor = "black",
     tkr_message = "Hello there, world.", tkr_messagerColor = "black", tkr_messageInterval = 200;
 
-  // Draw a grid on canvas element
-  function tkr_drawGrid(gridWidth,gridHeight,gridUnitSize,gridColor,canvasContext){
+  /////////////////////////////////////////////
+  //  internal functions for the tkr library
+  /////////////////////////////////////////////
+
+  // Set tkr grid values
+  function tkr_setGrid(newGridWidth,newGridHeight,newGridColor,newGridUnitSize){
+    tkr_gridWidth = tkr_canvas.width = newGridWidth;
+    tkr_gridHeight = tkr_canvas.height = newGridHeight;
+    tkr_gridColor = newGridColor;
+    tkr_gridUnitSize = newGridUnitSize;
+  }
+
+  // Set tkr message 
+  function tkr_setMessage(newMessage,newMessageColor,newMessageInterval){
+    tkr_message = newMessage;
+    tkr_messagerColor = newMessageColor;
+    tkr_messageInterval = newMessageInterval;
+  }
+
+  // Draw grid on canvas element
+  function tkr_drawGrid(){
     // Clear canvas of remnants
-    canvasContext.clearRect(0,0,gridWidth,gridHeight);
+    tkr_ctx.clearRect(0,0,tkr_gridWidth,tkr_gridHeight);
     // Draw vertical grid
-    for (var x = 0; x <= gridWidth; x++){
-      canvasContext.beginPath();
-      canvasContext.moveTo(x, 0);
-      canvasContext.lineTo(x, gridHeight);
-      canvasContext.closePath();
-      canvasContext.fillStyle = gridColor;
-      canvasContext.stroke();
-      x += gridUnitSize;
+    for (var x = 0; x <= tkr_gridWidth; x++){
+      tkr_ctx.beginPath();
+      tkr_ctx.moveTo(x, 0);
+      tkr_ctx.lineTo(x, tkr_gridHeight);
+      tkr_ctx.closePath();
+      tkr_ctx.fillStyle = tkr_gridColor;
+      tkr_ctx.stroke();
+      x += tkr_gridUnitSize;
     }
     // Draw horizontal grid
-    for (var y = 0; y <= gridHeight; y++){
-      canvasContext.beginPath();
-      canvasContext.moveTo(0, y);
-      canvasContext.lineTo(gridWidth, y);
-      canvasContext.closePath();
-      canvasContext.fillStyle = gridColor;
-      canvasContext.stroke();
-      y += gridUnitSize;
+    for (var y = 0; y <= tkr_gridHeight; y++){
+      tkr_ctx.beginPath();
+      tkr_ctx.moveTo(0, y);
+      tkr_ctx.lineTo(tkr_gridWidth, y);
+      tkr_ctx.closePath();
+      tkr_ctx.fillStyle = tkr_gridColor;
+      tkr_ctx.stroke();
+      y += tkr_gridUnitSize;
     }
   }
 
   // Shape class constructor
-  function tkr_shape(newOffset){
+  function tkr_shape(newTickerWidth,newOffset,newShapeColor){
     // Declare array of rectangle coordinates
     this.shapeArray = [];
     // tickerMessage width
@@ -70,9 +95,11 @@
       [this.p + 20, this.p + 20]
     ];
     // Overall width of ticker
-    this.reset = tkr_gridWidth;
+    this.reset = newTickerWidth;
     // Initial offset
     this.offset = newOffset;
+    // Set color
+    this.shapeColor = newShapeColor;
   }
 
   // Declare Shape class properties on prototype
@@ -81,8 +108,6 @@
     constructor: tkr_shape,
     // Load a shape with generic coordinates from an array of squares to "turn on"
     loadShape: function (arrayOfSquaresToColor){
-      // Store shape offset in position "0"
-      this.shapeArray[0] = this.offset;
       // Add positions to color to the shape
       for (var i = 0; i < arrayOfSquaresToColor.length; i++){
         this.shapeArray[i] = this.testShape[arrayOfSquaresToColor[i]];
@@ -102,25 +127,12 @@
         var tempX = this.shapeArray[i][0];
         var tempY = this.shapeArray[i][1];
         // Draw shape
-        canvasContext.fillStyle = "black";
+        canvasContext.fillStyle = this.shapeColor;
         canvasContext.fillRect(tempX, tempY, 10, 10);
         this.shapeArray[i][0] -= tkr_gridUnitSize; // Decrement x coordinate position
       };
     }
   }
-
-  // SAMPLE CODE TO TEST LIBRARY REVISIONS
-  // Create sample shapes
-  var firstShape = new tkr_shape(350);
-  var positionsToColor = [0, 2];
-  firstShape.loadShape(positionsToColor);
-  var secondShape = new tkr_shape(370);
-  positionsToColor = [3, 5];
-  secondShape.loadShape(positionsToColor);
-  var thirdShape = new tkr_shape(390);
-  positionsToColor = [6, 8, 5];
-  thirdShape.loadShape(positionsToColor);
-  test_messageArray = [firstShape,secondShape,thirdShape];
 
   // Draw letters from message to canvas, an array of tkr_shape objects are passed in
   function tkr_writeMessage(messageArray){
@@ -129,11 +141,69 @@
     }
   };
 
+  /////////////////////////////////////////////
+  //  external functions to be called by user
+  /////////////////////////////////////////////
+
+  // Setters
+  tkr.setMessage = function(newMessage){
+    tkr_message = newMessage;
+  }
+  tkr.setMessageColor = function(newMessageColor){
+    tkr_messagerColor = newMessageColor;
+  }
+  tkr.setMessageInterval = function(newMessageInterval){
+    tkr_messageInterval = newMessageInterval;
+  }
+  tkr.setGridHeight = function(newGridHeight){
+    tkr_gridHeight = newGridHeight;
+  }
+  tkr.setGridWidth = function(newGridWidth){
+    tkr_gridWidth = newGridWidth;
+  }
+  tkr.setGridUnitSize = function(newGridUnitSize){
+    tkr_gridUnitSize = newGridUnitSize;
+  }
+  tkr.setGridColor = function(newGridColor){
+    tkr_gridColor = newGridColor;
+  }
+
+  // tkr controls
+  tkr.play = function(){
+    tkr_run();
+  }
+  tkr.pause = function(){
+
+  }
+  tkr.reset = function(){
+
+  }
+  tkr.reverse = function(){
+
+  }
+
+  /*** ADD IN MORE FUN CONTROLS/SUPRISES ***/ 
+
+  // SAMPLE CODE TO TEST LIBRARY REVISIONS
+  // Create sample shapes
+  var firstShape = new tkr_shape(350,350,"blue");
+  var positionsToColor = [0, 2];
+  firstShape.loadShape(positionsToColor);
+  var secondShape = new tkr_shape(350,370,"red");
+  positionsToColor = [3, 5];
+  secondShape.loadShape(positionsToColor);
+  var thirdShape = new tkr_shape(350,390,"yellow");
+  positionsToColor = [6, 8, 5];
+  thirdShape.loadShape(positionsToColor);
+  test_messageArray = [firstShape,secondShape,thirdShape];
+
   // Ticker display loop
-  tkr.run = setInterval(function () {
-    tkr_drawGrid(tkr_gridWidth,tkr_gridHeight,tkr_gridUnitSize,tkr_gridColor,tkr_ctx);
-    tkr_writeMessage(test_messageArray);
-  }, tkr_messageInterval);
+  function tkr_run(){
+    setInterval(function(){
+      tkr_drawGrid();
+      tkr_writeMessage(test_messageArray);
+    }, tkr_messageInterval);
+  }
   
   // Register the tkr object to the global namespace
   this.tkr = tkr;
