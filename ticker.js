@@ -32,17 +32,132 @@
   var tkr_IntervalId, tkr_isPaused = false, tkr_isForward = false, tkr_isReversed = false;
     
   // Array of tkr char shapes for UTF-8 codes
-  //  in decimal from 32 to 126.
+  //  in decimal from 32 to 90.
   //  Here is a good list of the available chars:
   //    http://utf8-chartable.de/unicode-utf8-table.pl?utf8=dec
   // Position [0] of each array is the required width of the shape
     
     // \ !" so far
   var tkr_charShapes = [
-      [6],[3,0,6,12,18,30],[6,1,7,13,3,9,15]
+      //
+      [6],
+      // !
+      [3,0,6,12,18,30],
+      // "
+      [6,1,7,13,3,9,15],
+      // #
+      [6,1,3,6,7,8,9,10,13,15,19,21,24,25,26,27,28,31,33],
+      // $
+      [],
+      // %
+      [],
+      // &
+      [],
+      // '
+      [],
+      // (
+      [],
+      // )
+      [],
+      // *
+      [],
+      // +
+      [],
+      // ,
+      [],
+      // -
+      [],
+      // .
+      [],
+      // /
+      [],
+      // 0
+      [],
+      // 1
+      [],
+      // 2
+      [],
+      // 3
+      [],
+      // 4
+      [],
+      // 5
+      [],
+      // 6
+      [],
+      // 7
+      [],
+      // 8
+      [],
+      // 9
+      [],
+      // :
+      [],
+      // ;
+      [],
+      // <
+      [],
+      // =
+      [],
+      // >
+      [],
+      // ?
+      [],
+      // @
+      [],
+      // A
+      [],
+      // B
+      [],
+      // C
+      [],
+      // D
+      [],
+      // E
+      [],
+      // F
+      [],
+      // G
+      [],
+      // H
+      [],
+      // I
+      [],
+      // J
+      [],
+      // K
+      [],
+      // L
+      [],
+      // M
+      [],
+      // N
+      [],
+      // O
+      [],
+      // P
+      [],
+      // Q
+      [],
+      // R
+      [],
+      // S
+      [],
+      // T
+      [],
+      // U
+      [],
+      // V
+      [],
+      // W
+      [],
+      // X
+      [],
+      // Y
+      [],
+      // Z
+      []
   ];
-  //tkr_charShapes[47]=[0,1,2,3,4,6,10,12,16,18,22,24,28,30,31,32,33,34];
-  
 
   /////////////////////////////////////////////
   //  Internal tkr functions
@@ -279,7 +394,7 @@
 
   // SAMPLE CODE TO TEST LIBRARY REVISIONS
   // Create sample shapes
-  tkr.setMessage("!! !!");
+  tkr.setMessage("!! !! ##!");
   console.log(tkr_message);
 
   // Register the tkr object to the global namespace
