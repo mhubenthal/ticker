@@ -21,12 +21,15 @@
   var tkr_canvas = document.getElementById("tkr_canvas");
   var tkr_ctx = tkr_canvas.getContext('2d');
 
-  // Default tkr values
-  var tkr_gridWidth = tkr_canvas.width = 350, tkr_gridHeight = tkr_canvas.height = 200, tkr_gridUnitSize = 10, tkr_gridColor = "black",
-    tkr_message = "Hello there, world.", tkr_messagerColor = "black", tkr_messageInterval = 200;
+  // Default tkr grid values
+  var tkr_gridWidth = tkr_canvas.width = 350, tkr_gridHeight = tkr_canvas.height = 200, tkr_gridUnitSize = 10, tkr_gridColor = "black";
+  // Default tkr message values
+  var tkr_message = "Hello there, world.", tkr_messagerColor = "black", tkr_messageInterval = 200;
+  // Default tkr run status values
+  var tkr_IntervalId, tkr_isPaused = false, tkr_isForward = false, tkr_isReversed = false;
 
   /////////////////////////////////////////////
-  //  internal functions for the tkr library
+  //  Internal functions for the tkr library
   /////////////////////////////////////////////
 
   // Set tkr grid values
@@ -117,7 +120,7 @@
     },
 
     // Draw a shape, given a '2d' <canvas> context
-    drawShape: function (canvasContext){
+    animateShapeForward: function (canvasContext){
       for (var i = 0; i < this.shapeArray.length; i++){
         // Pixel is ready to cycle back to enter right of ticker
         if (this.shapeArray[i][0] < 0) {
@@ -131,18 +134,68 @@
         canvasContext.fillRect(tempX, tempY, 10, 10);
         this.shapeArray[i][0] -= tkr_gridUnitSize; // Decrement x coordinate position
       };
+    },
+    animateShapeBackwards: function (canvasContext){
+      for (var i = 0; i < this.shapeArray.length; i++){
+        // Pixel is ready to cycle back to enter right of ticker
+        if (this.shapeArray[i][0] > this.reset) {
+          // Reset position to ticker display width
+          this.shapeArray[i][0] = 0;
+        };
+        var tempX = this.shapeArray[i][0];
+        var tempY = this.shapeArray[i][1];
+        // Draw shape
+        canvasContext.fillStyle = this.shapeColor;
+        canvasContext.fillRect(tempX, tempY, 10, 10);
+        this.shapeArray[i][0] += tkr_gridUnitSize; // Decrement x coordinate position
+      };
     }
   }
 
   // Draw letters from message to canvas, an array of tkr_shape objects are passed in
-  function tkr_writeMessage(messageArray){
+  function tkr_writeMessageForward(messageArray){
     for(var i=0; i<messageArray.length; i++){
-        messageArray[i].drawShape(tkr_ctx);
+        messageArray[i].animateShapeForward(tkr_ctx);
+    }
+  };
+  function tkr_writeMessageBackwards(messageArray){
+    for(var i=0; i<messageArray.length; i++){
+        messageArray[i].animateShapeBackwards(tkr_ctx);
     }
   };
 
+  // Internal tkr contol methods
+  function tkr_play(){ 
+    // If tkr is not already running, start it up, otherwise do nothing
+    if(!tkr_isForward){
+      tkr_IntervalId = setInterval(function(){
+        tkr_drawGrid();
+        tkr_writeMessageForward(test_messageArray);
+        tkr_isForward = true;
+        tkr_isReversed = false;
+      }, tkr_messageInterval);
+    }
+  }
+  function tkr_pause(){
+    clearInterval(tkr_IntervalId);
+    tkr_isPaused = true;
+    tkr_isForward = false;
+    tkr_isReversed = false;
+  }
+  function tkr_reverse(){
+    // If tkr is not already running, start it up, otherwise do nothing
+    if(!tkr_isReversed){
+      tkr_IntervalId = setInterval(function(){
+        tkr_drawGrid();
+        tkr_writeMessageBackwards(test_messageArray);
+        tkr_isReversed = true;
+        tkr_isForward = false;
+      }, tkr_messageInterval);
+    }
+  }
+
   /////////////////////////////////////////////
-  //  external functions to be called by user
+  //  External functions to be called by user
   /////////////////////////////////////////////
 
   // Setters
@@ -170,16 +223,13 @@
 
   // tkr controls
   tkr.play = function(){
-    tkr_run();
+    tkr_play();
   }
   tkr.pause = function(){
-
-  }
-  tkr.reset = function(){
-
+    tkr_pause();
   }
   tkr.reverse = function(){
-
+    tkr_reverse();
   }
 
   /*** ADD IN MORE FUN CONTROLS/SUPRISES ***/ 
@@ -197,14 +247,6 @@
   thirdShape.loadShape(positionsToColor);
   test_messageArray = [firstShape,secondShape,thirdShape];
 
-  // Ticker display loop
-  function tkr_run(){
-    setInterval(function(){
-      tkr_drawGrid();
-      tkr_writeMessage(test_messageArray);
-    }, tkr_messageInterval);
-  }
-  
   // Register the tkr object to the global namespace
   this.tkr = tkr;
 }());
