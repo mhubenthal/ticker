@@ -4,9 +4,10 @@
 // Ticker may be freely distributed under the MIT license.
 
 // Wrap the library in an IIFE
-(function() {
+(function(){ 
   // Declare tkr object for use in global namespace
   var tkr = {
+      
     // Current version.
     VERSION: "1.0"
   };
@@ -23,10 +24,25 @@
 
   // Default tkr grid values
   var tkr_gridWidth = tkr_canvas.width = 673, tkr_gridHeight = tkr_canvas.height = 211, tkr_gridUnitSize = 20, tkr_gridColor = "black", tkr_gridLineWidth = 1;
+    
   // Default tkr message values
-  var tkr_message = "Hello there, world.", tkr_messagerColor = "black", tkr_messageOffset = tkr_gridUnitSize+tkr_gridLineWidth, tkr_messageInterval = 200;
+  var tkr_message = [], tkr_messageShapeArray = [], tkr_messagerColor = "black", tkr_gridOffset = tkr_gridUnitSize + tkr_gridLineWidth, tkr_charOffset = 673, tkr_messageInterval = 200;
+    
   // Default tkr run status values
   var tkr_IntervalId, tkr_isPaused = false, tkr_isForward = false, tkr_isReversed = false;
+    
+  // Array of tkr char shapes for UTF-8 codes
+  //  in decimal from 32 to 126.
+  //  Here is a good list of the available chars:
+  //    http://utf8-chartable.de/unicode-utf8-table.pl?utf8=dec
+  // Position [0] of each array is the required width of the shape
+    
+    // \ !" so far
+  var tkr_charShapes = [
+      [6],[3,0,6,12,18,30],[6,1,7,13,3,9,15]
+  ];
+  //tkr_charShapes[47]=[0,1,2,3,4,6,10,12,16,18,22,24,28,30,31,32,33,34];
+  
 
   /////////////////////////////////////////////
   //  Internal tkr functions
@@ -37,6 +53,7 @@
     // Clear canvas of remnants
     tkr_ctx.clearRect(0,0,tkr_gridWidth,tkr_gridHeight);
     tkr_ctx.lineWidth = tkr_gridLineWidth;
+      
     // Draw vertical grid, start at 0.5 to allo for non-blurry 1px line
     for (var x = 0.5; x <= tkr_gridWidth; x++){
       tkr_ctx.beginPath();
@@ -47,6 +64,7 @@
       tkr_ctx.stroke();
       x += tkr_gridUnitSize;
     }
+      
     // Draw horizontal grid, start at 0.5 to allo for non-blurry 1px line
     for (var y = 0.5; y <= tkr_gridHeight; y++){
       tkr_ctx.beginPath();
@@ -60,11 +78,11 @@
   }
 
   // Shape class constructor
-  function tkr_shape(newTickerWidth,newOffset,newShapeColor,newGridLineWidth){
+  function tkr_shape(arrayOfSquaresToColor){
     // Create generic 6x6 grid, which is positioned on the canvas with a 2 box
     //   border to the top and bottom.
     //
-    // The loadShape function takes an array of squares to color,
+    // tkr_shape takes an array of squares to color,
     //   which correspond to the following positions:
     //
     // 00--01--02--03--04--05
@@ -74,49 +92,53 @@
     // 24--25--26--27--28--29
     // 30--31--32--33--34--35
     //
-    this.genericShape = [];
+    this.squaresToColor = arrayOfSquaresToColor;
+    this.genericShape = [[],[]];
     // Declare array of rectangle coordinates
-    this.shapeArray = [];
+    this.shapeArray = [[],[]];
     // Overall width of ticker
-    this.reset = newTickerWidth;
-    // Initial offset
-    this.offset = newOffset;
+    this.reset = tkr_gridWidth;
     // Set color
-    this.shapeColor = newShapeColor;
+    this.shapeColor = tkr_messagerColor;
     // Grid line width
-    this.gridLineWidth = newGridLineWidth;
+    this.gridLineWidth = tkr_gridLineWidth;
   }
 
   // Declare Shape class properties on prototype
   tkr_shape.prototype = {
     // Constructor
     constructor: tkr_shape,
+    
     // Load a generic array of coordinates for use in drawing shapes
     loadGenericShape: function(){
       // Fill generic shape with zero-based coordinates
       var xVal = 0;
-      var yVal = 2*tkr_messageOffset;
+      var yVal = 2*tkr_gridOffset;
       var counter = 0;
       while(counter<36){
         for(var i=0;i<6;i++){
           this.genericShape[counter] = [xVal,yVal];
-          xVal += tkr_messageOffset;
+          xVal += tkr_gridOffset;
           counter++;
         }
         xVal = 0;
-        yVal += tkr_messageOffset;
+        yVal += tkr_gridOffset;
       }
     },
+      
     // Load a shape with generic coordinates from an array of squares to "turn on"
-    loadShape: function (arrayOfSquaresToColor){
+    loadShape: function (){
       // Add positions to color to the shape
-      for (var i = 0; i < arrayOfSquaresToColor.length; i++){
-        this.shapeArray[i] = this.genericShape[arrayOfSquaresToColor[i]];
+      for (var i = 1; i < this.squaresToColor.length; i++){
+        this.shapeArray[i] = this.genericShape[this.squaresToColor[i]];
         // Set each x coordinate of shape to offset position in message string
-        this.shapeArray[i][0] += this.offset;
+        this.shapeArray[i][0] += tkr_charOffset;
         // Set each y coordinate of shape to account for grid line width
         this.shapeArray[i][1] += this.gridLineWidth;
       }
+      // After loading the shape, increment the offset(pointer) to
+      //   allow for writing the next char
+      tkr_charOffset += (this.squaresToColor[0] * tkr_gridOffset);
     },
 
     // Draw a shape, given a '2d' <canvas> context
@@ -126,66 +148,80 @@
         if (this.shapeArray[i][0] < 0) {
           // Reset position to ticker display width
           this.shapeArray[i][0] = this.reset;
-        };
+        }
         var tempX = this.shapeArray[i][0];
         var tempY = this.shapeArray[i][1];
+          
         // Draw shape
         canvasContext.fillStyle = this.shapeColor;
         canvasContext.fillRect(tempX,tempY,tkr_gridUnitSize,tkr_gridUnitSize);
-        this.shapeArray[i][0] -= tkr_messageOffset; // Decrement x coordinate position
-      };
+        this.shapeArray[i][0] -= tkr_gridOffset; // Decrement x coordinate position
+      }
     },
     animateShapeBackwards: function (canvasContext){
       for (var i = 0; i < this.shapeArray.length; i++){
         // Pixel is ready to cycle back to enter right of ticker
         if (this.shapeArray[i][0] > this.reset) {
           // Reset position to ticker display width
-          this.shapeArray[i][0] = 0;
-        };
+          this.shapeArray[i][0] = tkr_gridLineWidth;
+        }
         var tempX = this.shapeArray[i][0];
         var tempY = this.shapeArray[i][1];
+          
         // Draw shape
         canvasContext.fillStyle = this.shapeColor;
         canvasContext.fillRect(tempX,tempY,tkr_gridUnitSize,tkr_gridUnitSize);
-        this.shapeArray[i][0] += tkr_messageOffset; // Decrement x coordinate position
-      };
+        this.shapeArray[i][0] += tkr_gridOffset; // Decrement x coordinate position
+      }
+    }
+  };
+
+  // Load a message array of tkr_shape objects from an array of UTF-8 codes
+  function tkr_loadMessageShapeArray(newCharArray){
+    // Convert chars to tkr_shape objects and add to message array
+    for(var i=0;i<newCharArray.length;i++){
+      var newShape = new tkr_shape(tkr_charShapes[newCharArray[i]-32]);
+      newShape.loadGenericShape();  // Load the generic tkr shape template
+      // Load the shape, which creates an array of (x,y) coordinates
+      newShape.loadShape();  
+      tkr_messageShapeArray[i] = newShape;  // Add the shape to the message array
     }
   }
-
+  
   // Draw letters from message to canvas, an array of tkr_shape objects are passed in
   function tkr_writeMessageForward(messageArray){
     for(var i=0; i<messageArray.length; i++){
         messageArray[i].animateShapeForward(tkr_ctx);
     }
-  };
+  }
   function tkr_writeMessageBackwards(messageArray){
     for(var i=0; i<messageArray.length; i++){
         messageArray[i].animateShapeBackwards(tkr_ctx);
     }
-  };
+  }
 
   // Internal tkr contol methods
   function tkr_playForward(){ 
     // If tkr is not already running, start it up, otherwise do nothing
     if(!tkr_isForward){
-      //clearInterval(tkr_IntervalId);  // Clear any previously running tkr
+      clearInterval(tkr_IntervalId);  // Clear any previously running tkr
       tkr_isForward = true;
       tkr_isReversed = false;
       tkr_IntervalId = setInterval(function(){
         tkr_drawGrid();
-        tkr_writeMessageForward(test_messageArray);
+        tkr_writeMessageForward(tkr_messageShapeArray);
       }, tkr_messageInterval);
     }
   }
   function tkr_playReverse(){
     // If tkr is not already running, start it up, otherwise do nothing
     if(!tkr_isReversed){
-      //clearInterval(tkr_IntervalId);  // Clear any previously running tkr
+      clearInterval(tkr_IntervalId);  // Clear any previously running tkr
       tkr_isReversed = true;
       tkr_isForward = false;
       tkr_IntervalId = setInterval(function(){
         tkr_drawGrid();
-        tkr_writeMessageBackwards(test_messageArray);
+        tkr_writeMessageBackwards(tkr_messageShapeArray);
       }, tkr_messageInterval);
     }
   }
@@ -202,58 +238,49 @@
 
   // Setters
   tkr.setMessage = function(newMessage){
-    tkr_message = newMessage;
-  }
+    // Place array of UTF-8 codes into tkr_message
+    for(var i=0;i<newMessage.length;i++){
+      tkr_message[i] = newMessage.charCodeAt(i);
+    }
+    // Load shapes with array of UTF-8 codes
+    tkr_loadMessageShapeArray(tkr_message);
+  };
   tkr.setMessageColor = function(newMessageColor){
     tkr_messagerColor = newMessageColor;
-  }
+  };
   tkr.setMessageInterval = function(newMessageInterval){
     tkr_messageInterval = newMessageInterval;
-  }
+  };
   tkr.setGridHeight = function(newGridHeight){
     tkr_gridHeight = newGridHeight;
-  }
+  };
   tkr.setGridWidth = function(newGridWidth){
     tkr_gridWidth = newGridWidth;
-  }
+  };
   tkr.setGridUnitSize = function(newGridUnitSize){
     tkr_gridUnitSize = newGridUnitSize;
-  }
+  };
   tkr.setGridColor = function(newGridColor){
     tkr_gridColor = newGridColor;
-  }
+  };
 
   // tkr controls
   tkr.playForward = function(){
     tkr_playForward();
-  }
+  };
   tkr.pause = function(){
     tkr_pause();
-  }
+  };
   tkr.playReverse = function(){
     tkr_playReverse();
-  }
+  };
 
   /*** ADD IN MORE FUN CONTROLS/SUPRISES ***/ 
 
   // SAMPLE CODE TO TEST LIBRARY REVISIONS
   // Create sample shapes
-  var firstShape = new tkr_shape(673,673,"blue",1);
-    firstShape.loadGenericShape();
-    tkr.a = firstShape;
-  var positionsToColor = [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35];
-  firstShape.loadShape(positionsToColor);
-  var secondShape = new tkr_shape(673,799,"red",1);
-    secondShape.loadGenericShape();
-    tkr.b = secondShape;
-  positionsToColor = [0,1,2,3,4];
-  secondShape.loadShape(positionsToColor);
-  var thirdShape = new tkr_shape(673,925,"yellow",1);
-    thirdShape.loadGenericShape();
-    tkr.c = thirdShape;
-  positionsToColor = [0,1,2,3,4];
-  thirdShape.loadShape(positionsToColor);
-  test_messageArray = [firstShape,secondShape,thirdShape];
+  tkr.setMessage("!! !!");
+  console.log(tkr_message);
 
   // Register the tkr object to the global namespace
   this.tkr = tkr;
