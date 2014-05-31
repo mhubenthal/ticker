@@ -40,11 +40,11 @@
     // \ !" so far
   var tkr_charShapes = [
       //
-      [6],
+      [5],
       // !
-      [3,0,6,12,18,30],
+      [2,0,6,12,18,30],
       // "
-      [6,1,7,13,3,9,15],
+      [4,0,6,12,2,8,14],
       // #
       [6,1,3,6,7,8,9,10,13,15,19,21,24,25,26,27,28,31,33],
       // $
@@ -54,51 +54,51 @@
       // &
       [],
       // '
-      [],
+      [2,0,6,12],
       // (
-      [],
+      [4,2,7,12,18,25,32],
       // )
-      [],
+      [4,0,7,14,20,25,30],
       // *
       [],
       // +
-      [],
+      [4,13,18,19,20,25],
       // ,
-      [],
+      [2,30,36],
       // -
-      [],
+      [4,18,19,20],
       // .
-      [],
+      [2,30],
       // /
       [],
       // 0
-      [],
+      [4,6,7,8,12,14,18,20,24,26,30,31,32],
       // 1
-      [],
+      [2,6,12,18,24,30],
       // 2
-      [],
+      [4,6,7,8,14,18,19,20,24,30,31,32],
       // 3
-      [],
+      [4,6,7,8,14,18,19,20,26,30,31,32],
       // 4
-      [],
+      [4,6,8,12,14,18,19,20,26,32],
       // 5
-      [],
+      [4,6,7,8,12,18,19,20,26,30,31,32],
       // 6
-      [],
+      [4,6,7,8,12,18,19,20,24,26,30,31,32],
       // 7
-      [],
+      [4,6,7,8,14,20,26,32],
       // 8
-      [],
+      [4,6,7,8,12,14,18,19,20,24,26,30,31,32],
       // 9
-      [],
+      [4,6,7,8,12,14,18,19,20,26,30,31,32],
       // :
-      [],
+      [2,18,30],
       // ;
-      [],
+      [2,18,30,36],
       // <
       [],
       // =
-      [],
+      [4,12,13,14,24,25,26],
       // >
       [],
       // ?
@@ -106,7 +106,7 @@
       // @
       [],
       // A
-      [],
+      [4,6,7,8,12,14,18,19,20,24,26,30,32],
       // B
       [],
       // C
@@ -230,7 +230,7 @@
       var xVal = 0;
       var yVal = 2*tkr_gridOffset;
       var counter = 0;
-      while(counter<36){
+      while(counter<48){
         for(var i=0;i<6;i++){
           this.genericShape[counter] = [xVal,yVal];
           xVal += tkr_gridOffset;
@@ -262,7 +262,7 @@
         // Pixel is ready to cycle back to enter right of ticker
         if (this.shapeArray[i][0] < 0) {
           // Reset position to ticker display width
-          this.shapeArray[i][0] = this.reset;
+          this.shapeArray[i][0] = tkr_charOffset;
         }
         var tempX = this.shapeArray[i][0];
         var tempY = this.shapeArray[i][1];
@@ -276,9 +276,9 @@
     animateShapeBackwards: function (canvasContext){
       for (var i = 0; i < this.shapeArray.length; i++){
         // Pixel is ready to cycle back to enter right of ticker
-        if (this.shapeArray[i][0] > this.reset) {
+        if (this.shapeArray[i][0] > tkr_gridWidth) {
           // Reset position to ticker display width
-          this.shapeArray[i][0] = tkr_gridLineWidth;
+          this.shapeArray[i][0] = -tkr_charOffset;
         }
         var tempX = this.shapeArray[i][0];
         var tempY = this.shapeArray[i][1];
@@ -394,7 +394,7 @@
 
   // SAMPLE CODE TO TEST LIBRARY REVISIONS
   // Create sample shapes
-  tkr.setMessage("!! !! ##!");
+  tkr.setMessage("000111222333444555666777888999000111222333");
   console.log(tkr_message);
 
   // Register the tkr object to the global namespace
