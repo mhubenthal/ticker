@@ -23,10 +23,10 @@
   var tkr_ctx = tkr_canvas.getContext('2d');
 
   // Default tkr grid values
-  var tkr_gridWidth = tkr_canvas.width = 673, tkr_gridHeight = tkr_canvas.height = 211, tkr_gridUnitSize = 20, tkr_gridColor = "black", tkr_gridLineWidth = 1;
+  var tkr_gridWidth = tkr_canvas.width = 672, tkr_gridHeight = tkr_canvas.height = 122, tkr_gridUnitSize = 10, tkr_gridColor = "black", tkr_gridLineWidth = 1;
     
   // Default tkr message values
-  var tkr_message = [], tkr_messageShapeArray = [], tkr_messagerColor = "black", tkr_gridOffset = tkr_gridUnitSize + tkr_gridLineWidth, tkr_charOffset = 673, tkr_messageInterval = 100;
+  var tkr_message = [], tkr_messageShapeArray = [], tkr_messagerColor = "blue", tkr_gridOffset = tkr_gridUnitSize + tkr_gridLineWidth, tkr_charOffset = 672, tkr_messageInterval = 80;
     
   // Default tkr run status values
   var tkr_IntervalId, tkr_isPaused = false, tkr_isForward = false, tkr_isReversed = false;
@@ -38,126 +38,67 @@
   // Position [0] of each array is the required width of the shape
     
     // \ !" so far
-  var tkr_charShapes = [
-      //
-      [3],
-      // !
-      [2,0,6,12,18,30],
-      // "
-      [4,0,6,12,2,8,14],
-      // #
-      [6,1,3,6,7,8,9,10,13,15,19,21,24,25,26,27,28,31,33],
-      // $
-      [5],
-      // %
-      [5],
-      // &
-      [5],
-      // '
-      [2,0,6,12],
-      // (
-      [4,2,7,12,18,25,32],
-      // )
-      [4,0,7,14,20,25,30],
-      // *
-      [5],
-      // +
-      [4,13,18,19,20,25],
-      // ,
-      [2,30,36],
-      // -
-      [4,18,19,20],
-      // .
-      [2,30],
-      // /
-      [5],
-      // 0
-      [4,6,7,8,12,14,18,20,24,26,30,31,32],
-      // 1
-      [2,6,12,18,24,30],
-      // 2
-      [4,6,7,8,14,18,19,20,24,30,31,32],
-      // 3
-      [4,6,7,8,14,18,19,20,26,30,31,32],
-      // 4
-      [4,6,8,12,14,18,19,20,26,32],
-      // 5
-      [4,6,7,8,12,18,19,20,26,30,31,32],
-      // 6
-      [4,6,7,8,12,18,19,20,24,26,30,31,32],
-      // 7
-      [4,6,7,8,14,20,26,32],
-      // 8
-      [4,6,7,8,12,14,18,19,20,24,26,30,31,32],
-      // 9
-      [4,6,7,8,12,14,18,19,20,26,30,31,32],
-      // :
-      [2,18,30],
-      // ;
-      [2,18,30,36],
-      // <
-      [5],
-      // =
-      [4,12,13,14,24,25,26],
-      // >
-      [5],
-      // ?
-      [5],
-      // @
-      [5],
-      // A
-      [4,6,7,8,12,14,18,19,20,24,26,30,32],
-      // B
-      [4,6,7,8,12,14,18,19,20,24,26,30,31,32],
-      // C
-      [4,6,7,8,12,18,24,30,31,32],
-      // D
-      [4,8,14,18,19,20,24,26,30,31,32],
-      // E
-      [4,6,7,8,12,18,19,20,24,30,31,32],
-      // F
-      [4,6,7,8,12,18,19,20,24,30],
-      // G
-      [4,6,7,8,12,18,20,24,26,30,31,32],
-      // H
-      [4,6,8,12,14,18,19,20,24,26,30,32],
-      // I
-      [2,6,18,24,30],
-      // J
-      [4,8,20,24,26,30,31,32],
-      // K
-      [4,6,8,12,14,18,19,24,26,30,32],
-      // L
-      [4,6,12,18,24,30,31,32],
-      // M
-      [6,6,7,8,9,10,12,14,16,18,20,22,24,26,28,30,32,34],
-      // N
-      [5,6,9,12,13,15,18,20,21,24,27,30,33],
-      // O
-      [4,6,7,8,12,14,18,20,24,26,30,31,32],
-      // P
-      [4,6,7,8,12,14,18,19,20,24,30],
-      // Q
-      [4,6,7,8,12,14,18,19,20,26,32],
-      // R
-      [4,6,7,8,12,14,18,19,24,26,30,32],
-      // S
-      [4,6,7,8,12,18,19,20,26,30,31,32],
-      // T
-      [4,6,7,8,13,19,25,31],
-      // U
-      [4,6,8,12,14,18,20,24,26,30,31,32],
-      // V
-      [4,6,8,12,14,18,20,25,31],
-      // W
-      [6,6,8,10,12,14,16,18,20,22,24,26,28,30,31,32,33,34],
-      // X
-      [6,6,10,13,15,20,25,27,30,34],
-      // Y
-      [4,6,8,12,14,19,25,31],
-      // Z
-      [4,6,7,8,14,19,24,30,31,32]
-  ];
+  var tkr_JSONcharShapes = {"charPatterns": [
+      {"char": " ", "pattern": [3]},
+      {"char": "!", "pattern": [2,0,6,12,18,30]},
+      {"char": "\"", "pattern": [4,0,6,12,2,8,14]},
+      {"char": "#", "pattern": [6,1,3,6,7,8,9,10,13,15,19,21,24,25,26,27,28,31,33]},
+      {"char": "$", "pattern": [5]},
+      {"char": "%", "pattern": [5]},
+      {"char": "&", "pattern": [5]},
+      {"char": "'", "pattern": [2,0,6,12]},
+      {"char": "(", "pattern": [4,2,7,12,18,25,32]},
+      {"char": ")", "pattern": [4,0,7,14,20,25,30]},
+      {"char": "*", "pattern": [5]},
+      {"char": "+", "pattern": [4,13,18,19,20,25]},
+      {"char": ",", "pattern": [2,30,36]},
+      {"char": "-", "pattern": [4,18,19,20]},
+      {"char": ".", "pattern": [2,30]},
+      {"char": "/", "pattern": [5]},
+      {"char": "0", "pattern": [4,6,7,8,12,14,18,20,24,26,30,31,32]},
+      {"char": "1", "pattern": [2,6,12,18,24,30]},
+      {"char": "2", "pattern": [4,6,7,8,14,18,19,20,24,30,31,32]},
+      {"char": "3", "pattern": [4,6,7,8,14,18,19,20,26,30,31,32]},
+      {"char": "4", "pattern": [4,6,8,12,14,18,19,20,26,32]},
+      {"char": "5", "pattern": [4,6,7,8,12,18,19,20,26,30,31,32]},
+      {"char": "6", "pattern": [4,6,7,8,12,18,19,20,24,26,30,31,32]},
+      {"char": "7", "pattern": [4,6,7,8,14,20,26,32]},
+      {"char": "8", "pattern": [4,6,7,8,12,14,18,19,20,24,26,30,31,32]},
+      {"char": "9", "pattern": [4,6,7,8,12,14,18,19,20,26,30,31,32]},
+      {"char": ":", "pattern": [2,18,30]},
+      {"char": ";", "pattern": [2,18,30,36]},
+      {"char": "<", "pattern": [5]},
+      {"char": "=", "pattern": [4,12,13,14,24,25,26]},
+      {"char": ">", "pattern": [5]},
+      {"char": "?", "pattern": [5]},
+      {"char": "@", "pattern": [5]},
+      {"char": "A", "pattern": [4,6,7,8,12,14,18,19,20,24,26,30,32]},
+      {"char": "B", "pattern": [4,6,7,8,12,14,18,19,20,24,26,30,31,32]},
+      {"char": "C", "pattern": [4,6,7,8,12,18,24,30,31,32]},
+      {"char": "D", "pattern": [4,8,14,18,19,20,24,26,30,31,32]},
+      {"char": "E", "pattern": [4,6,7,8,12,18,19,20,24,30,31,32]},
+      {"char": "F", "pattern": [4,6,7,8,12,18,19,20,24,30]},
+      {"char": "G", "pattern": [4,6,7,8,12,18,20,24,26,30,31,32]},
+      {"char": "H", "pattern": [4,6,8,12,14,18,19,20,24,26,30,32]},
+      {"char": "I", "pattern": [2,6,18,24,30]},
+      {"char": "J", "pattern": [4,8,20,24,26,30,31,32]},
+      {"char": "K", "pattern": [4,6,8,12,14,18,19,24,26,30,32]},
+      {"char": "L", "pattern": [4,6,12,18,24,30,31,32]},
+      {"char": "M", "pattern": [6,6,7,8,9,10,12,14,16,18,20,22,24,26,28,30,32,34]},
+      {"char": "N", "pattern": [5,6,9,12,13,15,18,20,21,24,27,30,33]},
+      {"char": "O", "pattern": [4,6,7,8,12,14,18,20,24,26,30,31,32]},
+      {"char": "P", "pattern": [4,6,7,8,12,14,18,19,20,24,30]},
+      {"char": "Q", "pattern": [4,6,7,8,12,14,18,19,20,26,32]},
+      {"char": "R", "pattern": [4,6,7,8,12,14,18,19,24,26,30,32]},
+      {"char": "S", "pattern": [4,6,7,8,12,18,19,20,26,30,31,32]},
+      {"char": "T", "pattern": [4,6,7,8,13,19,25,31]},
+      {"char": "U", "pattern": [4,6,8,12,14,18,20,24,26,30,31,32]},
+      {"char": "V", "pattern": [4,6,8,12,14,18,20,25,31]},
+      {"char": "W", "pattern": [6,6,8,10,12,14,16,18,20,22,24,26,28,30,31,32,33,34]},
+      {"char": "X", "pattern": [6,6,10,13,15,20,25,27,30,34]},
+      {"char": "Y", "pattern": [4,6,8,12,14,19,25,31]},
+      {"char": "Z", "pattern": [4,6,7,8,14,19,24,30,31,32]}
+  ]};
 
   /////////////////////////////////////////////
   //  Internal tkr functions
@@ -295,7 +236,7 @@
   function tkr_loadMessageShapeArray(newCharArray){
     // Convert chars to tkr_shape objects and add to message array
     for(var i=0;i<newCharArray.length;i++){
-      var newShape = new tkr_shape(tkr_charShapes[newCharArray[i]-32]);
+      var newShape = new tkr_shape(tkr_JSONcharShapes.charPatterns[newCharArray[i]-32].pattern);
       newShape.loadGenericShape();  // Load the generic tkr shape template
       // Load the shape, which creates an array of (x,y) coordinates
       newShape.loadShape();  
@@ -394,8 +335,8 @@
 
   // SAMPLE CODE TO TEST LIBRARY REVISIONS
   // Create sample shapes
-  //tkr.setMessage(" !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ");
-  tkr.setMessage("++HELLO WORLD, WELCOME TO TICKER.JS++AND WELCOME TO MAXHUBENTHAL.COM++");
+  tkr.setMessage(" !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ");
+  //tkr.setMessage("++ HELLO WORLD, WELCOME TO TICKER.JS ++ AND WELCOME TO MAXHUBENTHAL.COM ++");
   console.log(tkr_message);
 
   // Register the tkr object to the global namespace
