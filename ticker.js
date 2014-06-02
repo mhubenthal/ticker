@@ -26,7 +26,7 @@
   var tkr_gridWidth = tkr_canvas.width = 672, tkr_gridHeight = tkr_canvas.height = 122, tkr_gridUnitSize = 10, tkr_gridColor, tkr_gridLineWidth = 1;
     
   // Default tkr message values
-  var tkr_message = [], tkr_messageShapeArray = [], tkr_messageColor, tkr_gridOffset = tkr_gridUnitSize + tkr_gridLineWidth, tkr_charOffset = 672, tkr_messageInterval = 80;
+  var tkr_message = [], tkr_messageShapeArray = [], tkr_messageColor, tkr_gridOffset = tkr_gridUnitSize + tkr_gridLineWidth, tkr_charOffset = 672, tkr_messageInterval = 60;
     
   // Default tkr run status values
   var tkr_IntervalId, tkr_isPaused = false, tkr_isForward = false, tkr_isReversed = false;
