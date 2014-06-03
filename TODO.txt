@@ -1,0 +1,19 @@
+2014.06.02
+Author: Max Hubenthal
+
+++ ticker.js TODO list ++ 
+
+  - minified ticker.js file
+  - multiple tkr objects on page
+  - better error handling (method input checking...)
+  - performance issues (large message size, small interval, etc.)
+  - refine README instructions
+  - refactor comments and code for best clarity and best performance
+  - make tickerjs.org page
+  - add in more options:
+    - gradient colors
+    - animated colors
+    - colors to grid
+    - draw your own chars/shapes to animate
+    - manipulate size of ticker
+    - more...?
