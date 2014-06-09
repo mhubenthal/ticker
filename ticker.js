@@ -145,7 +145,7 @@
     tkr_ctx.clearRect(0,0,tkr_gridWidth,tkr_gridHeight);
     tkr_ctx.lineWidth = tkr_gridLineWidth;
       
-    // Draw vertical grid, start at 0.5 to allo for non-blurry 1px line
+    // Draw vertical grid, start at 0.5 to allow for non-blurry 1px line
     for (var x = 0.5; x <= tkr_gridWidth; x++){
       tkr_ctx.fillStyle = tkr_gridColor;
       tkr_ctx.beginPath();
@@ -156,7 +156,7 @@
       x += tkr_gridUnitSize;
     }
       
-    // Draw horizontal grid, start at 0.5 to allo for non-blurry 1px line
+    // Draw horizontal grid, start at 0.5 to allow for non-blurry 1px line
     for (var y = 0.5; y <= tkr_gridHeight; y++){
       tkr_ctx.fillStyle = tkr_gridColor;
       tkr_ctx.beginPath();
