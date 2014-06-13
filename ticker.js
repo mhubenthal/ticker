@@ -4,7 +4,7 @@
 // Ticker may be freely distributed under the MIT license.
 
 // Wrap the library in an IIFE
-(function(){ 
+(function(window){ 
   // Declare tkr object for use in global namespace
   var tkr = {
       
@@ -389,5 +389,5 @@
   //tkr.setMessage(" !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`{|}~");
 
   // Register the tkr object to the global namespace
-  this.tkr = tkr;
-}());
+  window.tkr = tkr;
+}(window));
