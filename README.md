@@ -1,4 +1,4 @@
-### A customizeable Javascript ticker using the ```<canvas>``` tag.
+### A customizeable JavaScript ticker using the ```<canvas>``` tag.
 
 Include ```<canvas id="tkr_canvas"></canvas>``` on your page. 
 Include the ticker.js script, the ```tkr``` object is attached to
